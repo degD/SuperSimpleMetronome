@@ -8,13 +8,18 @@ export default function App() {
   const stopIcon = <FontAwesome name="pause" size={24} color="black" />
 
   const [bpm, onChangeBpm] = useState("100");
-  const [beats, onChangeBeats] = useState("4");
+  const [beats, setBeats] = useState("4");
   const [playing, setPlaying] = useState(false);
-  const [buttonIcon, setButtonIcon] = useState(playIcon)
+  const [buttonIcon, setButtonIcon] = useState(playIcon);
+  const [beatBoxes, setBeatBoxes] = useState([<View key={0}></View>]);
 
   return (
     <View style={styles.container}>
-      <View id="beats" style={styles.section}><Text>aaaa</Text></View>
+      <View id="beats" style={styles.section}>
+        <View style={styles.beatBoxContainer}>
+          {beatBoxes}
+        </View>
+      </View>
 
       <View id="beats-field" style={styles.section}>
         <View style={{flexDirection: "row", alignItems: "center"}}>
@@ -61,6 +66,16 @@ export default function App() {
     }
     console.log("Pressed")
   }
+
+  function onChangeBeats(beats: string) {
+    let beatBoxesArray = [];
+    let beatsNr = parseInt(beats);
+    for (let i = 0; i < beatsNr; i++) {
+      beatBoxesArray.push(<View key={i} style={styles.beatBox}></View>)
+    }
+    setBeats(beats)
+    setBeatBoxes(beatBoxesArray)
+  }
 }
 
 const styles = StyleSheet.create({
@@ -89,5 +104,15 @@ const styles = StyleSheet.create({
     backgroundColor: "red", 
     justifyContent: "center", 
     alignItems: "center"
+  },
+  beatBox: {
+    width: 40, 
+    height: 40,
+    backgroundColor: "green",
+  },
+  beatBoxContainer: {
+    flexDirection: "row", 
+    justifyContent: "space-around", 
+    width: "80%"
   }
 });
