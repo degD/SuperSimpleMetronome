@@ -1,23 +1,26 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Pressable, TextInput } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function App() {
   const playIcon = <FontAwesome name="play" size={24} color="black" />
   const stopIcon = <FontAwesome name="pause" size={24} color="black" />
 
-  const [bpm, onChangeBpm] = useState("100");
+  const [bpm, setBpm] = useState("100");
   const [beats, setBeats] = useState("4");
   const [playing, setPlaying] = useState(false);
   const [buttonIcon, setButtonIcon] = useState(playIcon);
-  const [beatBoxes, setBeatBoxes] = useState([<View key={0}></View>]);
+  const [beatContainerWidht, setBeatContainerWidth] = useState(0);
 
   return (
     <View style={styles.container}>
       <View id="beats" style={styles.section}>
-        <View style={styles.beatBoxContainer}>
-          {beatBoxes}
+        <View 
+          style={styles.beatBoxContainer} 
+          onLayout={(event) => setBeatContainerWidth(event.nativeEvent.layout.width)}
+        >
+          {generateBeatBoxes(20, 3)}
         </View>
       </View>
 
@@ -57,12 +60,31 @@ export default function App() {
     </View>
   );
 
+  function generateBeatBoxes(n: number, boxIndex: number) {
+    let boxes = [];
+    let boxSize = beatContainerWidht / (n * 2);
+    let maxSize = beatContainerWidht / 3;
+    for (let i = 0; i < n; i++) {
+      if (boxIndex != i) {
+        boxes.push(<View key={i} style={[
+          {width: boxSize, height: boxSize, maxWidth: maxSize, maxHeight: maxSize}, 
+          styles.beatBox]}></View>);
+      }
+      else {
+        boxes.push(<View key={i} style={[
+          {width: boxSize, height: boxSize, maxWidth: maxSize, maxHeight: maxSize}, 
+          styles.beatBox, {backgroundColor: "red"}]}></View>);
+      }
+    }
+    return boxes;
+  }
+
   function playStateChanged() {
     setPlaying(!playing);
-    if (playing) {
-      setButtonIcon(playIcon);
-    } else {
+    if (!playing) {
       setButtonIcon(stopIcon);
+    } else {
+      setButtonIcon(playIcon);
     }
     console.log("Pressed")
   }
@@ -74,7 +96,10 @@ export default function App() {
       beatBoxesArray.push(<View key={i} style={styles.beatBox}></View>)
     }
     setBeats(beats)
-    setBeatBoxes(beatBoxesArray)
+  }
+
+  function onChangeBpm(bpm: string) {
+    setBpm(bpm);
   }
 }
 
@@ -103,16 +128,17 @@ const styles = StyleSheet.create({
     height: 120, 
     backgroundColor: "red", 
     justifyContent: "center", 
-    alignItems: "center"
+    alignItems: "center",
+    borderRadius: "100%"
   },
   beatBox: {
-    width: 40, 
-    height: 40,
     backgroundColor: "green",
+    borderRadius: "100%",
   },
   beatBoxContainer: {
     flexDirection: "row", 
     justifyContent: "space-around", 
-    width: "80%"
+    width: "80%",
+    flexWrap: "wrap"
   }
 });
