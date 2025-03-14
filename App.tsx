@@ -12,6 +12,19 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [buttonIcon, setButtonIcon] = useState(playIcon);
   const [beatContainerWidht, setBeatContainerWidth] = useState(0);
+  const [boxes, setBoxes] = useState(generateBeatBoxes(4, 4));
+
+  useEffect(() => {
+    // maybe load previous state from asyncstorage?
+    const initialBeats = "4";
+    setBeats(initialBeats);
+    setBoxes( generateBeatBoxes(parseInt(initialBeats), -1) );
+  }, []);
+
+  useEffect(() => {
+    setBoxes( generateBeatBoxes(parseInt(beats), -1) );
+  }, [beats]);
+
 
   return (
     <View style={styles.container}>
@@ -20,7 +33,7 @@ export default function App() {
           style={styles.beatBoxContainer} 
           onLayout={(event) => setBeatContainerWidth(event.nativeEvent.layout.width)}
         >
-          {generateBeatBoxes(20, 3)}
+          {boxes}
         </View>
       </View>
 
@@ -59,6 +72,12 @@ export default function App() {
       <StatusBar style='auto' />
     </View>
   );
+
+  function initApp() {
+    // maybe load previous state from asyncstorage?
+    console.log(beats);
+    setBoxes( generateBeatBoxes(parseInt(beats), -1) ); // add parse validation
+  }
 
   function generateBeatBoxes(n: number, boxIndex: number) {
     let boxes = [];
