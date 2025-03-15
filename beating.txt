@@ -1,0 +1,26 @@
+
+How will the beating work?
+Parts that effect beating:
+    1. bpm change
+    2. beats change
+    3. play state change
+
+How will the beating get effected?
+    0. Let's assume the beating is playing
+    1. First, the beating will stop
+    2. The index will return to the beginning
+    3. Boxes will be redrawn with updated values
+    4. The beating will continue from the beginning
+
+    0. Let's assume the beating is stopped
+    1. Boxes will be redrawn with updated values
+
+    0. When play state changed
+    1. First, the beating will stop
+    2. The index will return to the beginning
+    3. Boxes will be redrawn with updated values
+    4. The beating will continue from the beginning
+
+As beat index is also used for ticking, it might be better to
+not directly modify it. Instead, I will use a state variable called
+"begin".

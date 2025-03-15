@@ -14,6 +14,10 @@ export default function App() {
   const [beatContainerWidht, setBeatContainerWidth] = useState(0);
   const [boxes, setBoxes] = useState(generateBeatBoxes(4, 4));
 
+  const [beatIndex, setBeatIndex] = useState(-1);
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout>();
+  const [begin, setBegin] = useState(false);
+
   useEffect(() => {
     // maybe load previous state from asyncstorage?
     const initialBeats = "4";
@@ -22,9 +26,40 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (playing) {
+      stopPlaying();
+      setBegin(true);
+    }
     setBoxes( generateBeatBoxes(parseInt(beats), -1) );
-  }, [beats]);
+    console.log("Update detected", bpm, beats, playing);
+  }, [bpm, beats]);
 
+  useEffect(() => {
+    if (playing) {
+      setBeatIndex(0);
+    } 
+    else {
+      setBeatIndex(-1);
+    }
+  }, [playing]);
+
+  useEffect(() => {
+    if (begin) {
+      setBegin(false);
+      startPlaying();
+    }
+  }, [begin]);
+
+  useEffect(() => {
+    console.log("Beat index changed!", beatIndex);
+    if (playing) {
+      setBoxes( generateBeatBoxes(parseInt(beats), beatIndex) );
+      let tid = setTimeout(() => {
+        setBeatIndex( (beatIndex + 1) % parseInt(beats) );
+      }, 60000 / (parseInt(bpm)+1));
+      setTimeoutId(tid);
+    }
+  }, [beatIndex]);
 
   return (
     <View style={styles.container}>
@@ -73,12 +108,6 @@ export default function App() {
     </View>
   );
 
-  function initApp() {
-    // maybe load previous state from asyncstorage?
-    console.log(beats);
-    setBoxes( generateBeatBoxes(parseInt(beats), -1) ); // add parse validation
-  }
-
   function generateBeatBoxes(n: number, boxIndex: number) {
     let boxes = [];
     let boxSize = beatContainerWidht / (n * 2);
@@ -98,6 +127,17 @@ export default function App() {
     return boxes;
   }
 
+  function startPlaying() {
+    setPlaying(true);
+    setBeatIndex(0);
+  }
+
+  function stopPlaying() {
+    setPlaying(false);
+    clearTimeout(timeoutId);
+    setBeatIndex(-1);
+  }
+
   function playStateChanged() {
     setPlaying(!playing);
     if (!playing) {
@@ -105,7 +145,6 @@ export default function App() {
     } else {
       setButtonIcon(playIcon);
     }
-    console.log("Pressed")
   }
 
   function onChangeBeats(beats: string) {
