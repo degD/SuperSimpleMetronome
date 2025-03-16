@@ -12,26 +12,23 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [buttonIcon, setButtonIcon] = useState(playIcon);
   const [beatContainerWidht, setBeatContainerWidth] = useState(0);
-  const [boxes, setBoxes] = useState(generateBeatBoxes(4, 4));
+  const [boxes, setBoxes] = useState(() => generateBeatBoxes(4, 4));
 
   const [beatIndex, setBeatIndex] = useState(-1);
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout>();
   const [begin, setBegin] = useState(false);
 
-  useEffect(() => {
-    // maybe load previous state from asyncstorage?
-    const initialBeats = "4";
-    setBeats(initialBeats);
-    setBoxes( generateBeatBoxes(parseInt(initialBeats), -1) );
-  }, []);
+  const [bpmBorder, setBpmBorder] = useState("green");
+  const [beatsBorder, setBeatsBorder] = useState("green");
 
   useEffect(() => {
     if (playing) {
       stopPlaying();
       setBegin(true);
     }
-    setBoxes( generateBeatBoxes(parseInt(beats), -1) );
-    console.log("Update detected", bpm, beats, playing);
+    if (validateInputs())
+      setBoxes( generateBeatBoxes(parseInt(beats), -1) );
+    console.log("Update detected", bpm, beats, playing, "\n", boxes);
   }, [bpm, beats]);
 
   useEffect(() => {
@@ -52,12 +49,14 @@ export default function App() {
 
   useEffect(() => {
     console.log("Beat index changed!", beatIndex);
-    if (playing) {
-      setBoxes( generateBeatBoxes(parseInt(beats), beatIndex) );
-      let tid = setTimeout(() => {
-        setBeatIndex( (beatIndex + 1) % parseInt(beats) );
-      }, 60000 / (parseInt(bpm)+1));
-      setTimeoutId(tid);
+    if (validateInputs()) {
+      if (playing) {
+        setBoxes( generateBeatBoxes(parseInt(beats), beatIndex) );
+        let tid = setTimeout(() => {
+          setBeatIndex( (beatIndex + 1) % parseInt(beats) );
+        }, 60000 / (parseInt(bpm)+1));
+        setTimeoutId(tid);
+      }
     }
   }, [beatIndex]);
 
@@ -68,14 +67,14 @@ export default function App() {
           style={styles.beatBoxContainer} 
           onLayout={(event) => setBeatContainerWidth(event.nativeEvent.layout.width)}
         >
-          {boxes}
+          {boxes}    { /* TODO: Not loading at start */}
         </View>
       </View>
 
       <View id="beats-field" style={styles.section}>
         <View style={{flexDirection: "row", alignItems: "center"}}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, {borderColor: beatsBorder}]}
             onChangeText={onChangeBeats}
             value={beats}
             placeholder="useless placeholder"
@@ -88,7 +87,7 @@ export default function App() {
       <View id="bpm-field" style={styles.section}>
         <View style={{flexDirection: "row", alignItems: "center"}}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, {borderColor: bpmBorder}]}
             onChangeText={onChangeBpm}
             value={bpm}
             placeholder="useless placeholder"
@@ -153,11 +152,40 @@ export default function App() {
     for (let i = 0; i < beatsNr; i++) {
       beatBoxesArray.push(<View key={i} style={styles.beatBox}></View>)
     }
-    setBeats(beats)
+    setBeats(beats);
+
   }
 
   function onChangeBpm(bpm: string) {
     setBpm(bpm);
+
+  }
+
+  function isInt(str: string) {
+    str = str.trim();
+    if (!str) {
+      return false;
+    }
+    str = str.replace(/^0+/, "") || "0";
+    var n = Math.floor(Number(str));
+    return n !== Infinity && String(n) === str && n >= 0;
+  }
+
+  function validateInputs() {
+    if (isInt(beats)) {
+      setBeatsBorder("green");
+    }
+    else {
+      setBeatsBorder("red");
+    }
+    if (isInt(bpm)) {
+      setBpmBorder("green");
+    }
+    else {
+      setBpmBorder("red");
+    }
+
+    return (isInt(beats) && isInt(bpm));
   }
 }
 
