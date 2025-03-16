@@ -3,6 +3,11 @@ import { StyleSheet, Text, View, Pressable, TextInput } from 'react-native';
 import { useState, useEffect } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
+const backColor = "#222831";
+const deactiveColor = "#393E46";
+const activeColor = "#00ADB5";
+const textColor = "#EEEEEE";
+
 export default function App() {
   const playIcon = <FontAwesome name="play" size={24} color="black" />
   const stopIcon = <FontAwesome name="pause" size={24} color="black" />
@@ -13,13 +18,14 @@ export default function App() {
   const [buttonIcon, setButtonIcon] = useState(playIcon);
   const [beatContainerWidht, setBeatContainerWidth] = useState(0);
   const [boxes, setBoxes] = useState(() => generateBeatBoxes(4, 4));
+  const [buttonColor, setButtonColor] = useState(activeColor);
 
   const [beatIndex, setBeatIndex] = useState(-1);
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout>();
   const [begin, setBegin] = useState(false);
 
-  const [bpmBorder, setBpmBorder] = useState("green");
-  const [beatsBorder, setBeatsBorder] = useState("green");
+  const [bpmBorder, setBpmBorder] = useState(activeColor);
+  const [beatsBorder, setBeatsBorder] = useState(activeColor);
 
   useEffect(() => {
     if (playing) {
@@ -67,7 +73,7 @@ export default function App() {
           style={styles.beatBoxContainer} 
           onLayout={(event) => setBeatContainerWidth(event.nativeEvent.layout.width)}
         >
-          {boxes}    { /* TODO: Not loading at start */}
+          {boxes}
         </View>
       </View>
 
@@ -77,10 +83,9 @@ export default function App() {
             style={[styles.input, {borderColor: beatsBorder}]}
             onChangeText={onChangeBeats}
             value={beats}
-            placeholder="useless placeholder"
             keyboardType="numeric"
           />
-          <Text>Beats</Text>
+          <Text style={styles.text}>Beats</Text>
         </View>
       </View>
 
@@ -90,16 +95,15 @@ export default function App() {
             style={[styles.input, {borderColor: bpmBorder}]}
             onChangeText={onChangeBpm}
             value={bpm}
-            placeholder="useless placeholder"
             keyboardType="numeric"
           />
-          <Text>BPM</Text>
+          <Text style={styles.text}>BPM</Text>
         </View>
       </View>
 
       <View id="button" style={styles.section}>
         <Pressable onPress={playStateChanged}>
-          <View style={styles.button}>{buttonIcon}</View>
+          <View style={[styles.button, {backgroundColor: buttonColor}]}>{buttonIcon}</View>
         </Pressable>
       </View>
 
@@ -120,7 +124,7 @@ export default function App() {
       else {
         boxes.push(<View key={i} style={[
           {width: boxSize, height: boxSize, maxWidth: maxSize, maxHeight: maxSize}, 
-          styles.beatBox, {backgroundColor: "red"}]}></View>);
+          styles.beatBox, {backgroundColor: activeColor}]}></View>);
       }
     }
     return boxes;
@@ -141,8 +145,10 @@ export default function App() {
     setPlaying(!playing);
     if (!playing) {
       setButtonIcon(stopIcon);
+      setButtonColor(deactiveColor);
     } else {
       setButtonIcon(playIcon);
+      setButtonColor(activeColor);
     }
   }
 
@@ -173,16 +179,16 @@ export default function App() {
 
   function validateInputs() {
     if (isInt(beats)) {
-      setBeatsBorder("green");
+      setBeatsBorder(activeColor);
     }
     else {
-      setBeatsBorder("red");
+      setBeatsBorder(deactiveColor);
     }
     if (isInt(bpm)) {
-      setBpmBorder("green");
+      setBpmBorder(activeColor);
     }
     else {
-      setBpmBorder("red");
+      setBpmBorder(deactiveColor);
     }
 
     return (isInt(beats) && isInt(bpm));
@@ -192,39 +198,48 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#aaaaaa',
+    backgroundColor: backColor,
     alignItems: 'center',
     justifyContent: 'center',
   },
   section: {
     flex: 1,
-    borderWidth: 4,
     width: "100%",
     alignItems: 'center',
     justifyContent: 'center',
   },
   input: {
-    height: 40,
+    minWidth: 80,
     margin: 12,
-    borderWidth: 1,
+    borderWidth: 4,
+    borderRadius: 10,
     padding: 10,
+    borderColor: activeColor,
+    color: textColor,
+    fontSize: 60, 
+    textAlign: "center"
   },
   button: {
-    width: 120, 
-    height: 120, 
-    backgroundColor: "red", 
+    width: 200, 
+    height: 200, 
+    backgroundColor: activeColor, 
     justifyContent: "center", 
     alignItems: "center",
-    borderRadius: "100%"
+    borderRadius: "10%"
   },
   beatBox: {
-    backgroundColor: "green",
-    borderRadius: "100%",
+    backgroundColor: deactiveColor,
+    borderRadius: "10%",
   },
   beatBoxContainer: {
     flexDirection: "row", 
     justifyContent: "space-around", 
     width: "80%",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
+    marginTop: 60
+  },
+  text: {
+    color: textColor,
+    fontSize: 60
   }
 });
