@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Pressable, TextInput } from 'react-native';
 import { useState, useEffect } from 'react';
+import { Audio } from 'expo-av';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const backColor = "#222831";
@@ -9,8 +10,8 @@ const activeColor = "#00ADB5";
 const textColor = "#EEEEEE";
 
 export default function App() {
-  const playIcon = <FontAwesome name="play" size={24} color="black" />
-  const stopIcon = <FontAwesome name="pause" size={24} color="black" />
+  const playIcon = <FontAwesome name="play" size={60} color="black" />
+  const stopIcon = <FontAwesome name="pause" size={60} color="black" />
 
   const [bpm, setBpm] = useState("100");
   const [beats, setBeats] = useState("4");
@@ -27,6 +28,17 @@ export default function App() {
   const [bpmBorder, setBpmBorder] = useState(activeColor);
   const [beatsBorder, setBeatsBorder] = useState(activeColor);
 
+  const [sound1, setSound1] = useState<Audio.Sound>();
+  const [sound2, setSound2] = useState<Audio.Sound>();
+
+  useEffect(() => {
+    Audio.Sound.createAsync( require('./metronome1.mp3') )
+      .then(data => setSound1(data.sound));
+    Audio.Sound.createAsync( require('./metronome2.mp3') )
+      .then(data => setSound2(data.sound));
+    console.log("Sounds loaded!");
+  }, []);
+
   useEffect(() => {
     if (playing) {
       stopPlaying();
@@ -39,10 +51,10 @@ export default function App() {
 
   useEffect(() => {
     if (playing) {
-      setBeatIndex(0);
+      startPlaying();
     } 
     else {
-      setBeatIndex(-1);
+      stopPlaying();
     }
   }, [playing]);
 
@@ -65,6 +77,24 @@ export default function App() {
       }
     }
   }, [beatIndex]);
+
+  useEffect(() => {
+    return sound1
+      ? () => {
+          console.log('Unloading Sound1');
+          sound1.unloadAsync();
+        }
+      : undefined;
+  }, [sound1]);
+
+  useEffect(() => {
+    return sound2
+      ? () => {
+          console.log('Unloading Sound2');
+          sound2.unloadAsync();
+        }
+      : undefined;
+  }, [sound2]);
 
   return (
     <View style={styles.container}>
@@ -125,6 +155,9 @@ export default function App() {
         boxes.push(<View key={i} style={[
           {width: boxSize, height: boxSize, maxWidth: maxSize, maxHeight: maxSize}, 
           styles.beatBox, {backgroundColor: activeColor}]}></View>);
+        if (playing) {
+          i == 0 ? playSound1() : playSound2();
+        }
       }
     }
     return boxes;
@@ -192,6 +225,28 @@ export default function App() {
     }
 
     return (isInt(beats) && isInt(bpm));
+  }
+
+  // https://freesound.org/s/250552/
+  async function playSound1() {
+    console.log('Loading Sound');
+    const { sound } = await Audio.Sound.createAsync( require('./metronome1.mp3')
+    );
+    setSound1(sound);
+
+    console.log('Playing Sound');
+    await sound.playAsync();
+  }
+
+  // https://freesound.org/s/548518/
+  async function playSound2() {
+    console.log('Loading Sound');
+    const { sound } = await Audio.Sound.createAsync( require('./metronome2.mp3')
+    );
+    setSound2(sound);
+
+    console.log('Playing Sound');
+    await sound.playAsync();
   }
 }
 
