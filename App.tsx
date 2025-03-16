@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Audio } from 'expo-av';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
+// The colors. Will also add light theme and dynamic changing.
 const backColor = "#222831";
 const deactiveColor = "#393E46";
 const activeColor = "#00ADB5";
@@ -13,6 +14,7 @@ export default function App() {
   const playIcon = <FontAwesome name="play" size={60} color="black" />
   const stopIcon = <FontAwesome name="pause" size={60} color="black" />
 
+  // Main application variables.
   const [bpm, setBpm] = useState("100");
   const [beats, setBeats] = useState("4");
   const [playing, setPlaying] = useState(false);
@@ -21,24 +23,22 @@ export default function App() {
   const [boxes, setBoxes] = useState(() => generateBeatBoxes(4, 4));
   const [buttonColor, setButtonColor] = useState(activeColor);
 
+  // Variables that are responsible of beating/playing.
   const [beatIndex, setBeatIndex] = useState(-1);
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout>();
   const [begin, setBegin] = useState(false);
 
+  // Variables about input validation.
   const [bpmBorder, setBpmBorder] = useState(activeColor);
   const [beatsBorder, setBeatsBorder] = useState(activeColor);
 
+  // Sound objects.
   const [sound1, setSound1] = useState<Audio.Sound>();
   const [sound2, setSound2] = useState<Audio.Sound>();
 
-  useEffect(() => {
-    Audio.Sound.createAsync( require('./metronome1.mp3') )
-      .then(data => setSound1(data.sound));
-    Audio.Sound.createAsync( require('./metronome2.mp3') )
-      .then(data => setSound2(data.sound));
-    console.log("Sounds loaded!");
-  }, []);
-
+  // When bpm or beats input field modified, first validate the inputs
+  // before regenerating the beat boxes. If inputs are incorrect, stop
+  // beating. 
   useEffect(() => {
     if (playing) {
       stopPlaying();
@@ -49,6 +49,7 @@ export default function App() {
     console.log("Update detected", bpm, beats, playing, "\n", boxes);
   }, [bpm, beats]);
 
+  // Start/stop setups after pressing the button.
   useEffect(() => {
     if (playing) {
       startPlaying();
@@ -58,6 +59,11 @@ export default function App() {
     }
   }, [playing]);
 
+  // The 'begin' is used because the state modifications are not applied
+  // immediately in a function block. In this case, a jump to the 'begin'
+  // block is necessary after the 'stopPlaying' setup function. 
+  // Basically, the playing is stopped and restarted to prevent the
+  // usual confusion.
   useEffect(() => {
     if (begin) {
       setBegin(false);
@@ -65,6 +71,7 @@ export default function App() {
     }
   }, [begin]);
 
+  // To make the beatings with an interval. The core of the metronome-ing.
   useEffect(() => {
     console.log("Beat index changed!", beatIndex);
     if (validateInputs()) {
@@ -72,12 +79,14 @@ export default function App() {
         setBoxes( generateBeatBoxes(parseInt(beats), beatIndex) );
         let tid = setTimeout(() => {
           setBeatIndex( (beatIndex + 1) % parseInt(beats) );
-        }, 60000 / (parseInt(bpm)+1));
+        }, 60000 / parseInt(bpm));  // The timing part
         setTimeoutId(tid);
       }
     }
   }, [beatIndex]);
 
+  // Constant unloading of the sound is necessary to prevent
+  // the sound from stopping after a while.
   useEffect(() => {
     return sound1
       ? () => {
@@ -86,7 +95,6 @@ export default function App() {
         }
       : undefined;
   }, [sound1]);
-
   useEffect(() => {
     return sound2
       ? () => {
@@ -123,7 +131,7 @@ export default function App() {
         <View style={{flexDirection: "row", alignItems: "center"}}>
           <TextInput
             style={[styles.input, {borderColor: bpmBorder}]}
-            onChangeText={onChangeBpm}
+            onChangeText={setBpm}
             value={bpm}
             keyboardType="numeric"
           />
@@ -141,6 +149,12 @@ export default function App() {
     </View>
   );
 
+  /**
+   * Generate beat boxes dynamically with beating effect and sound.
+   * @param n Number of boxes
+   * @param boxIndex Index of the 'beating' box
+   * @returns list of box View components
+   */
   function generateBeatBoxes(n: number, boxIndex: number) {
     let boxes = [];
     let boxSize = beatContainerWidht / (n * 2);
@@ -163,20 +177,30 @@ export default function App() {
     return boxes;
   }
 
+  /**
+   * Setup to start beating.
+   */
   function startPlaying() {
     setPlaying(true);
     setBeatIndex(0);
   }
 
+  /**
+   * Setup to reset beating.
+   */
   function stopPlaying() {
     setPlaying(false);
     clearTimeout(timeoutId);
     setBeatIndex(-1);
   }
 
+  /**
+   * The function that get called when the play/stop button has pressed.
+   * Basically stops/resets or starts the beating of the metronome.
+   */
   function playStateChanged() {
-    setPlaying(!playing);
-    if (!playing) {
+    setPlaying(!playing);   
+    if (!playing) {   // Actually called when 'playing == true' but states do not update inside.
       setButtonIcon(stopIcon);
       setButtonColor(deactiveColor);
     } else {
@@ -185,6 +209,10 @@ export default function App() {
     }
   }
 
+  /**
+   * Generate beat boxes by the value. Used at 'beats' input field.
+   * @param beats New number of beats as a string
+   */
   function onChangeBeats(beats: string) {
     let beatBoxesArray = [];
     let beatsNr = parseInt(beats);
@@ -195,11 +223,12 @@ export default function App() {
 
   }
 
-  function onChangeBpm(bpm: string) {
-    setBpm(bpm);
-
-  }
-
+  /**
+   * Return true if the given string is an integer without trailing or following
+   * whitespaces. Return false otherwise.
+   * @param str Potentially integer numeric string
+   * @returns true if integer with no spaces, false otherwise
+   */
   function isInt(str: string) {
     str = str.trim();
     if (!str) {
@@ -210,6 +239,13 @@ export default function App() {
     return n !== Infinity && String(n) === str && n >= 0;
   }
 
+  /**
+   * Check the values written into input fields. Modify input field border
+   * colors according to it. For example, deactive the field when the input
+   * is not an integer (or in the correct form). Then return true if both 
+   * fields are correct. Return false otherwise.
+   * @returns true or false
+   */
   function validateInputs() {
     if (isInt(beats)) {
       setBeatsBorder(activeColor);
@@ -227,10 +263,13 @@ export default function App() {
     return (isInt(beats) && isInt(bpm));
   }
 
-  // https://freesound.org/s/250552/
+  /**
+   * This sound is used at the first beat.
+   */
   async function playSound1() {
     console.log('Loading Sound');
     const { sound } = await Audio.Sound.createAsync( require('./metronome1.mp3')
+    // https://freesound.org/s/250552/
     );
     setSound1(sound);
 
@@ -238,10 +277,13 @@ export default function App() {
     await sound.playAsync();
   }
 
-  // https://freesound.org/s/548518/
+  /**
+   * This sound is used at the beats following the first one.
+   */
   async function playSound2() {
     console.log('Loading Sound');
     const { sound } = await Audio.Sound.createAsync( require('./metronome2.mp3')
+    // https://freesound.org/s/548518/
     );
     setSound2(sound);
 
