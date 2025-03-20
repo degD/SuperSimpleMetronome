@@ -1,18 +1,38 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Pressable, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Pressable, TextInput, Appearance, useColorScheme } from 'react-native';
 import { useState, useEffect } from 'react';
 import { Audio } from 'expo-av';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-
-// The colors. Will also add light theme and dynamic changing.
-const backColor = "#222831";
-const deactiveColor = "#393E46";
-const activeColor = "#00ADB5";
-const textColor = "#EEEEEE";
+import themeColors from './Colors';
 
 export default function App() {
   const playIcon = <FontAwesome name="play" size={60} color="black" />
   const stopIcon = <FontAwesome name="pause" size={60} color="black" />
+
+  // Update colors for the initial system theme.
+  let colorScheme = useColorScheme();     // TODO: Why not changing dynamically
+  const [backColor, setBackColor] = useState(themeColors.light.backColor);
+  const [activeColor, setActiveColor] = useState(themeColors.light.activeColor);
+  const [deactiveColor, setDeactiveColor] = useState(themeColors.light.deactiveColor);
+  const [textColor, setTextColor] = useState(themeColors.light.textColor);
+
+  useEffect(() => {
+    if (colorScheme) {
+      setBackColor( themeColors[colorScheme].backColor );
+      setActiveColor( themeColors[colorScheme].activeColor );
+      setDeactiveColor( themeColors[colorScheme].deactiveColor );
+      setTextColor( themeColors[colorScheme].textColor );
+      console.log("Colors set!", colorScheme);
+    }
+  }, []);
+  // Appearance.addChangeListener(() => {
+  //   let colorScheme = Appearance.getColorScheme();
+  //   backColor = themeColors[colorScheme].backColor;
+  //   activeColor = themeColors[colorScheme].activeColor;
+  //   deactiveColor = themeColors[colorScheme].deactiveColor;
+  //   textColor = themeColors[colorScheme].textColor;
+  //   console.log("Colors set!", colorScheme);
+  // });
 
   // Main application variables.
   const [bpm, setBpm] = useState("100");
@@ -105,7 +125,7 @@ export default function App() {
   }, [sound2]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: backColor}]}>
       <View id="beats" style={styles.section}>
         <View 
           style={styles.beatBoxContainer} 
@@ -118,30 +138,30 @@ export default function App() {
       <View id="beats-field" style={styles.section}>
         <View style={{flexDirection: "row", alignItems: "center"}}>
           <TextInput
-            style={[styles.input, {borderColor: beatsBorder}]}
+            style={[styles.input, {borderColor: activeColor, color: textColor}, {borderColor: beatsBorder}]}
             onChangeText={onChangeBeats}
             value={beats}
             keyboardType="numeric"
           />
-          <Text style={styles.text}>Beats</Text>
+          <Text style={[styles.text, {color: textColor}]}>Beats</Text>
         </View>
       </View>
 
       <View id="bpm-field" style={styles.section}>
         <View style={{flexDirection: "row", alignItems: "center"}}>
           <TextInput
-            style={[styles.input, {borderColor: bpmBorder}]}
+            style={[styles.input, {borderColor: activeColor, color: textColor}, {borderColor: bpmBorder}]}
             onChangeText={setBpm}
             value={bpm}
             keyboardType="numeric"
           />
-          <Text style={styles.text}>BPM</Text>
+          <Text style={[styles.text, {color: textColor}]}>BPM</Text>
         </View>
       </View>
 
       <View id="button" style={styles.section}>
         <Pressable onPress={playStateChanged}>
-          <View style={[styles.button, {backgroundColor: buttonColor}]}>{buttonIcon}</View>
+          <View style={[styles.button, {backgroundColor: activeColor}, {backgroundColor: buttonColor}]}>{buttonIcon}</View>
         </Pressable>
       </View>
 
@@ -163,7 +183,7 @@ export default function App() {
       if (boxIndex != i) {
         boxes.push(<View key={i} style={[
           {width: boxSize, height: boxSize, maxWidth: maxSize, maxHeight: maxSize}, 
-          styles.beatBox]}></View>);
+          styles.beatBox, {backgroundColor: deactiveColor}]}></View>);
       }
       else {
         boxes.push(<View key={i} style={[
@@ -295,7 +315,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: backColor,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -311,21 +330,17 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderRadius: 10,
     padding: 10,
-    borderColor: activeColor,
-    color: textColor,
     fontSize: 60, 
     textAlign: "center"
   },
   button: {
     width: 200, 
-    height: 200, 
-    backgroundColor: activeColor, 
+    height: 200,
     justifyContent: "center", 
     alignItems: "center",
     borderRadius: "10%"
   },
   beatBox: {
-    backgroundColor: deactiveColor,
     borderRadius: "10%",
   },
   beatBoxContainer: {
@@ -336,7 +351,6 @@ const styles = StyleSheet.create({
     marginTop: 60
   },
   text: {
-    color: textColor,
     fontSize: 60
   }
 });
