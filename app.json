@@ -1,14 +1,15 @@
 {
   "expo": {
     "name": "SuperSimpleMetronome",
+    "description": "A simple metronome app without any bloat",
     "slug": "SuperSimpleMetronome",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./metronome.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./metronome.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,12 +18,18 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "foregroundImage": "./metronome.png",
+        "backgroundColor": "#222831"
+      },
+      "package": "com.deneg.SuperSimpleMetronome"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./metronome.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "20585e4d-9b9d-44fe-8f5e-f56667260976"
+      }
     }
   }
 }
