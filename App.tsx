@@ -25,14 +25,19 @@ export default function App() {
       console.log("Colors set!", colorScheme);
     }
   }, []);
-  // Appearance.addChangeListener(() => {
-  //   let colorScheme = Appearance.getColorScheme();
-  //   backColor = themeColors[colorScheme].backColor;
-  //   activeColor = themeColors[colorScheme].activeColor;
-  //   deactiveColor = themeColors[colorScheme].deactiveColor;
-  //   textColor = themeColors[colorScheme].textColor;
-  //   console.log("Colors set!", colorScheme);
-  // });
+  Appearance.addChangeListener(() => {
+    let colorScheme = Appearance.getColorScheme()!;
+    setBackColor( themeColors[colorScheme].backColor );
+    setActiveColor( themeColors[colorScheme].activeColor );
+    setDeactiveColor( themeColors[colorScheme].deactiveColor );
+    setTextColor( themeColors[colorScheme].textColor );
+    console.log("Theme update detected!", colorScheme);
+
+    if (playing) {
+      stopPlaying();
+      setBegin(true);
+    }
+  });
 
   // Main application variables.
   const [bpm, setBpm] = useState("100");
@@ -165,7 +170,7 @@ export default function App() {
 
       <View id="button" style={styles.section}>
         <Pressable onPress={playStateChanged}>
-          <View style={[styles.button, {backgroundColor: activeColor}, {backgroundColor: buttonColor}]}>{buttonIcon}</View>
+          <View style={[styles.button, {backgroundColor: buttonColor}, {backgroundColor: activeColor}]}>{buttonIcon}</View>
         </Pressable>
       </View>
 
