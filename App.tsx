@@ -265,7 +265,7 @@ export default function App() {
     }
     str = str.replace(/^0+/, "") || "0";
     var n = Math.floor(Number(str));
-    return n !== Infinity && String(n) === str && n >= 0;
+    return n !== Infinity && String(n) === str && n > 1;
   }
 
   /**
