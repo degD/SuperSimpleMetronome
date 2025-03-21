@@ -10,11 +10,11 @@ export default function App() {
   const stopIcon = <FontAwesome name="pause" size={60} color="black" />
 
   // Update colors for the initial system theme.
-  let colorScheme = useColorScheme();     // TODO: Why not changing dynamically
-  const [backColor, setBackColor] = useState(themeColors.light.backColor);
-  const [activeColor, setActiveColor] = useState(themeColors.light.activeColor);
-  const [deactiveColor, setDeactiveColor] = useState(themeColors.light.deactiveColor);
-  const [textColor, setTextColor] = useState(themeColors.light.textColor);
+  let colorScheme: "dark"|"light" = useColorScheme()!;
+  const [backColor, setBackColor] = useState(themeColors[colorScheme].backColor);
+  const [activeColor, setActiveColor] = useState(themeColors[colorScheme].activeColor);
+  const [deactiveColor, setDeactiveColor] = useState(themeColors[colorScheme].deactiveColor);
+  const [textColor, setTextColor] = useState(themeColors[colorScheme].textColor);
 
   useEffect(() => {
     if (colorScheme) {
