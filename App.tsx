@@ -23,6 +23,7 @@ export default function App() {
       setDeactiveColor( themeColors[colorScheme].deactiveColor );
       setTextColor( themeColors[colorScheme].textColor );
       console.log("Colors set!", colorScheme);
+      // Setting colors at the loading (initial state).
     }
   }, []);
   Appearance.addChangeListener(() => {
@@ -32,7 +33,8 @@ export default function App() {
     setDeactiveColor( themeColors[colorScheme].deactiveColor );
     setTextColor( themeColors[colorScheme].textColor );
     console.log("Theme update detected!", colorScheme);
-
+    
+    // Updating colors and restart the beat when theme changes.
     if (playing) {
       stopPlaying();
       setBegin(true);
