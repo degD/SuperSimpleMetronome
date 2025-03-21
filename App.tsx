@@ -40,7 +40,7 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [buttonIcon, setButtonIcon] = useState(playIcon);
   const [beatContainerWidht, setBeatContainerWidth] = useState(0);
-  const [boxes, setBoxes] = useState(() => generateBeatBoxes(4, 4));
+  const [boxes, setBoxes] = useState(generateBeatBoxes(4, 4));
   const [buttonColor, setButtonColor] = useState(activeColor);
 
   // Variables that are responsible of beating/playing.
@@ -55,6 +55,10 @@ export default function App() {
   // Sound objects.
   const [sound1, setSound1] = useState<Audio.Sound>();
   const [sound2, setSound2] = useState<Audio.Sound>();
+
+  useEffect(() => {
+    setBoxes( generateBeatBoxes(parseInt(beats), -1) );
+  }, [beatContainerWidht]);
 
   // When bpm or beats input field modified, first validate the inputs
   // before regenerating the beat boxes. If inputs are incorrect, stop
