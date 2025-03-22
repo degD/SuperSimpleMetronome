@@ -10,36 +10,50 @@ export default function App() {
   const stopIcon = <FontAwesome name="pause" size={60} color="black" />
 
   // Update colors for the initial system theme.
-  let colorScheme: "dark"|"light" = useColorScheme()!;
-  const [backColor, setBackColor] = useState(themeColors[colorScheme].backColor);
-  const [activeColor, setActiveColor] = useState(themeColors[colorScheme].activeColor);
-  const [deactiveColor, setDeactiveColor] = useState(themeColors[colorScheme].deactiveColor);
-  const [textColor, setTextColor] = useState(themeColors[colorScheme].textColor);
+  const [scheme , setScheme] = useState<"light"|"dark">( useColorScheme()! );
+  const [backColor, setBackColor] = useState(themeColors[scheme].backColor);
+  const [activeColor, setActiveColor] = useState(themeColors[scheme].activeColor);
+  const [deactiveColor, setDeactiveColor] = useState(themeColors[scheme].deactiveColor);
+  const [textColor, setTextColor] = useState(themeColors[scheme].textColor);
 
   useEffect(() => {
-    if (colorScheme) {
-      setBackColor( themeColors[colorScheme].backColor );
-      setActiveColor( themeColors[colorScheme].activeColor );
-      setDeactiveColor( themeColors[colorScheme].deactiveColor );
-      setTextColor( themeColors[colorScheme].textColor );
-      console.log("Colors set!", colorScheme);
+    if (scheme) {
       // Setting colors at the loading (initial state).
+      setBackColor( themeColors[scheme].backColor );
+      setActiveColor( themeColors[scheme].activeColor );
+      setDeactiveColor( themeColors[scheme].deactiveColor );
+      setTextColor( themeColors[scheme].textColor );
+      console.log("Colors set!", scheme);
     }
+
+    // Listener for theme changes. 
+    Appearance.addChangeListener(({ colorScheme }) => {
+      if (colorScheme) {
+        setBackColor( themeColors[colorScheme].backColor );
+        setActiveColor( themeColors[colorScheme].activeColor );
+        setDeactiveColor( themeColors[colorScheme].deactiveColor );
+        setTextColor( themeColors[colorScheme].textColor );
+        console.log("Theme update detected!", colorScheme);
+      }
+      setScheme(colorScheme!);
+    });
   }, []);
-  Appearance.addChangeListener(() => {
-    let colorScheme = Appearance.getColorScheme()!;
-    setBackColor( themeColors[colorScheme].backColor );
-    setActiveColor( themeColors[colorScheme].activeColor );
-    setDeactiveColor( themeColors[colorScheme].deactiveColor );
-    setTextColor( themeColors[colorScheme].textColor );
-    console.log("Theme update detected!", colorScheme);
-    
-    // Updating colors and restart the beat when theme changes.
+
+  useEffect(() => {
+    // Updating colors and restarting the beat when theme changes.
     if (playing) {
       stopPlaying();
       setBegin(true);
+      setButtonColor( themeColors[scheme].deactiveColor );
+      console.log("\twhile playing...");
     }
-  });
+    else {
+      setButtonColor( themeColors[scheme].activeColor );
+      if (validateInputs()) {
+        setBoxes( generateBeatBoxes(parseInt(beats), -1) );
+      }
+    }
+  }, [scheme]);
 
   // Main application variables.
   const [bpm, setBpm] = useState("100");
@@ -172,7 +186,7 @@ export default function App() {
 
       <View id="button" style={styles.section}>
         <Pressable onPress={playStateChanged}>
-          <View style={[styles.button, {backgroundColor: buttonColor}, {backgroundColor: activeColor}]}>{buttonIcon}</View>
+          <View style={[styles.button, {backgroundColor: buttonColor}]}>{buttonIcon}</View>
         </Pressable>
       </View>
 
@@ -188,7 +202,7 @@ export default function App() {
    */
   function generateBeatBoxes(n: number, boxIndex: number) {
     let boxes = [];
-    let boxSize = beatContainerWidht / (n * 2);
+    let boxSize = beatContainerWidht / (n * 1.2);
     let maxSize = beatContainerWidht / 3;
     for (let i = 0; i < n; i++) {
       if (boxIndex != i) {
@@ -237,6 +251,7 @@ export default function App() {
     } else {
       setButtonIcon(playIcon);
       setButtonColor(activeColor);
+      console.log("Playing stopped:", playing);
     }
   }
 
@@ -341,12 +356,12 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderRadius: 10,
     padding: 10,
-    fontSize: 60, 
+    fontSize: 40, 
     textAlign: "center"
   },
   button: {
     width: 200, 
-    height: 200,
+    height: 120,
     justifyContent: "center", 
     alignItems: "center",
     borderRadius: "10%"
@@ -362,6 +377,6 @@ const styles = StyleSheet.create({
     marginTop: 60
   },
   text: {
-    fontSize: 60
+    fontSize: 40
   }
 });
