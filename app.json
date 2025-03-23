@@ -3,7 +3,7 @@
     "name": "SuperSimpleMetronome",
     "description": "A simple metronome app without any bloat",
     "slug": "SuperSimpleMetronome",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./metronome.png",
     "userInterfaceStyle": "automatic",
