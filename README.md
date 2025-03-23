@@ -1,6 +1,6 @@
 # SuperSimpleMetronome
 A barebones React Native metronome app without any bloat. Made for some learning experience. Use at your own risk. It does support the following features:
-* Dynamic theme change by device color scheme
+* Dynamic theme change by device color scheme changes
 * Input validation
 * BPM and beat number modifications
 
