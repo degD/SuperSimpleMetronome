@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Pressable, TextInput, Appearance, useColorSchem
 import { useState, useEffect } from 'react';
 import { Audio } from 'expo-av';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import themeColors from './Colors';
+import { themeColors } from './Colors';
 
 export default function App() {
   const playIcon = <FontAwesome name="play" size={60} color="black" />
