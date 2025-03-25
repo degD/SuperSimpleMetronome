@@ -24,7 +24,6 @@ export default function BeatBoxContainer(props: BeatBoxContainerProps) {
                     isActive={i == props.boxIndex}
                     boxActiveColor={props.boxActiveColor}
                     boxInactiveColor={props.boxInactiveColor}
-                    sideLength={20}
                 />
             );
         }
@@ -32,18 +31,14 @@ export default function BeatBoxContainer(props: BeatBoxContainerProps) {
     }, [props.boxNumber, props.boxIndex, props.boxActiveColor, props.boxInactiveColor]);
 
     return(
-        <View>{boxes}</View>
+        <View style={styles.beatBoxContainer}>{boxes}</View>
     );
 }
 
 const styles = StyleSheet.create({
-    beatBox: {
-        borderRadius: 20,
-    },
-        beatBoxContainer: {
-        flexDirection: "row", 
-        justifyContent: "space-around", 
-        width: "80%",
-        flexWrap: "wrap",
+    beatBoxContainer: {
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
     },
 });

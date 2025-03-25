@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Audio } from 'expo-av';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { themeColors } from './Colors';
+import BeatBoxContainer from './components/BeatBoxContainer';
 
 export default function App() {
   const playIcon = <FontAwesome name="play" size={60} color="black" />
@@ -150,45 +151,9 @@ export default function App() {
   }, [sound2]);
 
   return (
-    <View style={[styles.container, {backgroundColor: backColor}]}>
-      <View id="beats" style={styles.section}>
-        <View 
-          style={styles.beatBoxContainer} 
-          onLayout={(event) => setBeatContainerWidth(event.nativeEvent.layout.width)}
-        >
-          {boxes}
-        </View>
-      </View>
-
-      <View id="beats-field" style={styles.section}>
-        <View style={{flexDirection: "row", alignItems: "center"}}>
-          <TextInput
-            style={[styles.input, {borderColor: activeColor, color: textColor}, {borderColor: beatsBorder}]}
-            onChangeText={onChangeBeats}
-            value={beats}
-            keyboardType="numeric"
-          />
-          <Text style={[styles.text, {color: textColor}]}>Beats</Text>
-        </View>
-      </View>
-
-      <View id="bpm-field" style={styles.section}>
-        <View style={{flexDirection: "row", alignItems: "center"}}>
-          <TextInput
-            style={[styles.input, {borderColor: activeColor, color: textColor}, {borderColor: bpmBorder}]}
-            onChangeText={setBpm}
-            value={bpm}
-            keyboardType="numeric"
-          />
-          <Text style={[styles.text, {color: textColor}]}>BPM</Text>
-        </View>
-      </View>
-
-      <View id="button" style={styles.section}>
-        <Pressable onPress={playStateChanged}>
-          <View style={[styles.button, {backgroundColor: buttonColor}]}>{buttonIcon}</View>
-        </Pressable>
-      </View>
+    <View style={{backgroundColor: backColor, height: 300}}>
+      
+      <BeatBoxContainer boxNumber={3} boxIndex={2} boxActiveColor='#12a45f' boxInactiveColor='#456789'/>
 
       <StatusBar style='auto' />
     </View>
